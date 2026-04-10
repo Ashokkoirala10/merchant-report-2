@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+{% block title %}Review Data - MerchantReport{% endblock %}
+{% block content %}
+
+<div class="stepper">
+  <div class="step done"><div class="step-circle">✓</div><div class="step-label">Upload Files</div></div>
+  <div class="step done"><div class="step-circle">✓</div><div class="step-label">CBS Mapping</div></div>
+  <div class="step active"><div class="step-circle">3</div><div class="step-label">Review Data</div></div>
+  <div class="step"><div class="step-circle">4</div><div class="step-label">Final Report</div></div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-value">{{ session.fonepay_row_count }}</div>
+    <div class="stat-label">Fonepay Rows</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">{{ session.nepalpay_row_count }}</div>
+    <div class="stat-label">NepalpPay Rows</div>
+  </div>
+  <div class="stat-card" style="{% if fp_null_count > 0 %}border-color:#FDE68A;{% else %}border-color:#BBF7D0;{% endif %}">
+    <div class="stat-value" style="color:{% if fp_null_count > 0 %}var(--warning){% else %}var(--success){% endif %}">{{ fp_null_count }}</div>
+    <div class="stat-label">Fonepay Missing Geo</div>
+  </div>
+  <div class="stat-card" style="{% if np_null_count > 0 %}border-color:#FDE68A;{% else %}border-color:#BBF7D0;{% endif %}">
+    <div class="stat-value" style="color:{% if np_null_count > 0 %}var(--warning){% else %}var(--success){% endif %}">{{ np_null_count }}</div>
+    <div class="stat-label">NepalpPay Missing Geo</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon">👁</div>
+    <div>
+      <div class="card-title">Review Processed Data</div>
+      <div class="card-subtitle">Session #{{ session.id }} — {{ session.month_name }}</div>
+    </div>
+    <span class="badge badge-info" style="margin-left:auto">{{ session.status|upper }}</span>
+  </div>
+
+  {% if fp_null_count > 0 or np_null_count > 0 %}
+  <div class="alert alert-warning">
+    <div class="alert-icon">⚠️</div>
+    <div>
+      <strong>Missing geographic data detected.</strong> Some rows have empty Province, District, or Municipality values.
+      These rows are highlighted in <span style="background:#FFCCCC;padding:1px 6px;border-radius:3px;font-size:12px">red</span> in the downloaded file.
+      You can use the <strong>ADDRESS1</strong> and <strong>ADDRESS3</strong> columns to manually determine the correct location and re-upload the corrected file.
+      <br><br>
+      Rows with missing data will be <strong>excluded</strong> from geographic breakdowns in the final report unless corrected.
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-success">
+    <div class="alert-icon">✅</div>
+    <div>All rows have complete geographic data. You can proceed directly to generate the final report.</div>
+  </div>
+  {% endif %}
+
+  <div class="grid-2" style="margin-bottom:24px">
+    <div style="padding:20px;border:1px solid var(--border);border-radius:10px;background:rgba(59,130,246,0.03)">
+      <div class="section-label">🔵 Fonepay Processed File</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+        Contains: MERCHANT_ID, MERCHANT_NAME, ISSUER_NAME, PROVINCE, DISTRICT, MUNICIPALITY, GENDER, ORIGINAL_AMOUNT + ADDRESS columns for manual review.
+      </p>
+      <a href="/download/{{ session.id }}/fonepay_processed/" class="btn btn-outline">⬇ Download Fonepay Review File</a>
+    </div>
+    <div style="padding:20px;border:1px solid var(--border);border-radius:10px;background:rgba(34,197,94,0.03)">
+      <div class="section-label">🟢 NepalpPay Processed File</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+        Contains: Merchant Code, Merchant Name, Amount, PROVINCE, DISTRICT, MUNICIPALITY, GENDER + ADDRESS columns for manual review.
+      </p>
+      <a href="/download/{{ session.id }}/nepalpay_processed/" class="btn btn-outline">⬇ Download NepalpPay Review File</a>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+    <!-- Option A: Direct generate -->
+    <div style="flex:1;min-width:280px;padding:24px;border:2px solid var(--border);border-radius:12px">
+      <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">⚡ Quick Generate</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+        Proceed directly with current data. Rows with missing geographic data will be omitted from breakdown tables in the final report.
+      </p>
+      <a href="/generate/{{ session.id }}/" class="btn btn-primary">Generate Final Report →</a>
+    </div>
+
+    <!-- Option B: Re-upload corrected -->
+    <div style="flex:1;min-width:280px;padding:24px;border:2px solid var(--gold);border-radius:12px;background:rgba(200,151,43,0.03)">
+      <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">🔄 Upload Corrected Files</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">
+        Download the files above, fill in missing Province/District/Municipality values manually, then re-upload for a complete report.
+      </p>
+      <a href="/reupload/{{ session.id }}/" class="btn btn-gold">Upload Corrected Files →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

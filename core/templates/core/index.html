@@ -1,0 +1,69 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard - MerchantReport{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="hero-tag">🇳🇵 Nepal Rastra Bank</div>
+  <h1>Merchant Transaction<br>Report Generator</h1>
+  <p>Upload Fonepay and NepalpPay month-end data to generate province-wise, district-wise, local-level and gender-wise NRB reports.</p>
+  <br>
+  <a href="/upload/" class="btn btn-gold btn-lg">📤 Start New Report</a>
+</div>
+
+{% if sessions %}
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon">📋</div>
+    <div>
+      <div class="card-title">Recent Sessions</div>
+      <div class="card-subtitle">Previously processed report sessions</div>
+    </div>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Month</th>
+        <th>Fonepay Rows</th>
+        <th>NepalpPay Rows</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in sessions %}
+      <tr>
+        <td><code style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted)">#{{ s.id }}</code></td>
+        <td><strong>{{ s.month_name }}</strong></td>
+        <td>{{ s.fonepay_row_count|default:"—" }}</td>
+        <td>{{ s.nepalpay_row_count|default:"—" }}</td>
+        <td>
+          {% if s.status == 'final' %}<span class="badge badge-success">✓ Complete</span>
+          {% elif s.status == 'processed' %}<span class="badge badge-info">⚙ Processed</span>
+          {% elif s.status == 'reviewed' %}<span class="badge badge-warning">👁 Reviewed</span>
+          {% else %}<span class="badge badge-neutral">↑ Uploaded</span>{% endif %}
+        </td>
+        <td style="color:var(--text-muted);font-size:12px">{{ s.created_at|date:"d M Y, H:i" }}</td>
+        <td>
+          {% if s.status == 'processed' or s.status == 'reviewed' %}
+          <a href="/review/{{ s.id }}/" class="btn btn-outline btn-sm">Review</a>
+          {% endif %}
+          {% if s.final_report %}
+          <a href="/download/{{ s.id }}/final_report/" class="btn btn-success btn-sm">⬇ Report</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card" style="text-align:center;padding:60px;">
+  <div style="font-size:56px;margin-bottom:16px;">📊</div>
+  <div style="font-size:20px;font-weight:700;color:var(--navy);margin-bottom:8px;">No reports yet</div>
+  <div style="color:var(--text-muted);margin-bottom:24px;">Upload your first Fonepay and NepalpPay dataset to begin</div>
+  <a href="/upload/" class="btn btn-primary btn-lg">Get Started →</a>
+</div>
+{% endif %}
+{% endblock %}

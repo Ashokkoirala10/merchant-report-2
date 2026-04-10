@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% block title %}Error - MerchantReport{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon">❌</div>
+    <div><div class="card-title">Processing Error</div></div>
+  </div>
+  <div class="alert alert-danger">
+    <div class="alert-icon">⚠️</div>
+    <div>{{ error }}</div>
+  </div>
+  {% if trace %}
+  <details style="margin-top:16px">
+    <summary style="cursor:pointer;font-size:13px;color:var(--text-muted)">Technical details</summary>
+    <pre style="margin-top:12px;padding:16px;background:#1e1e1e;color:#ccc;border-radius:8px;font-size:11px;overflow-x:auto;font-family:'DM Mono',monospace">{{ trace }}</pre>
+  </details>
+  {% endif %}
+  <div style="margin-top:24px">
+    <a href="/" class="btn btn-outline">← Back to Dashboard</a>
+  </div>
+</div>
+{% endblock %}

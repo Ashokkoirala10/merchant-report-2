@@ -1,0 +1,103 @@
+{% extends 'core/base.html' %}
+{% block title %}Upload Data - MerchantReport{% endblock %}
+{% block nav_upload %}active{% endblock %}
+{% block content %}
+
+<div class="stepper">
+  <div class="step active">
+    <div class="step-circle">1</div>
+    <div class="step-label">Upload Files</div>
+  </div>
+  <div class="step">
+    <div class="step-circle">2</div>
+    <div class="step-label">CBS Mapping</div>
+  </div>
+  <div class="step">
+    <div class="step-circle">3</div>
+    <div class="step-label">Review Data</div>
+  </div>
+  <div class="step">
+    <div class="step-circle">4</div>
+    <div class="step-label">Final Report</div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon">📤</div>
+    <div>
+      <div class="card-title">Upload Transaction Files</div>
+      <div class="card-subtitle">Upload month-end data from Fonepay and NepalpPay systems</div>
+    </div>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger">
+    <div class="alert-icon">⚠️</div>
+    <div>{{ error }}</div>
+  </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" action="/upload/">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label class="form-label">Report Month</label>
+      <input type="text" name="month_name" class="form-control" placeholder="e.g. Ashwin 2081" value="Ashwin" required style="max-width:300px">
+    </div>
+
+    <hr class="divider">
+
+    <div class="grid-2">
+      <div>
+        <div class="section-label">🔵 Fonepay Data</div>
+        <div class="dropzone">
+          <input type="file" name="fonepay_file" accept=".xlsx,.xls,.csv" required>
+          <div class="dropzone-icon">📊</div>
+          <div class="dropzone-text">Drop Fonepay File Here</div>
+          <div class="dropzone-hint">Accepts .xlsx, .xls — Contains MERCHANT_ID, ORIGINAL_AMOUNT, PROVINCE, DISTRICT, MUNICIPALITY etc.</div>
+          <div class="dropzone-filename"></div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:var(--cream);border-radius:8px;font-size:12px;color:var(--text-muted)">
+          <strong>Key columns used:</strong> MERCHANT_ID · MERCHANT_NAME · ISSUER_NAME · TERMINAL_DETAILS_ID · PROVINCE · DISTRICT · MUNICIPALITY · ORIGINAL_AMOUNT
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">🟢 NepalpPay Data</div>
+        <div class="dropzone">
+          <input type="file" name="nepalpay_file" accept=".xlsx,.xls,.csv" required>
+          <div class="dropzone-icon">📈</div>
+          <div class="dropzone-text">Drop NepalpPay File Here</div>
+          <div class="dropzone-hint">Accepts .xlsx, .xls — Contains Merchant Code, Amount columns</div>
+          <div class="dropzone-filename"></div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:var(--cream);border-radius:8px;font-size:12px;color:var(--text-muted)">
+          <strong>Key columns used:</strong> Merchant Code · Merchant Name · Amount · QR Type · Transaction Date · Issuer Id
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info" style="margin-top:24px">
+      <div class="alert-icon">ℹ️</div>
+      <div>
+        <strong>CBS Mapping:</strong> After upload, the system will map each merchant against our mock CBS database to fill in missing Province, District, Municipality, and Gender information. Rows with gaps will be highlighted for your review.
+      </div>
+    </div>
+
+    <div style="text-align:right;margin-top:8px">
+      <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+        <span id="btn-text">⚙ Process & Map Data</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+document.querySelector('form').addEventListener('submit', function() {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  document.getElementById('btn-text').textContent = '⏳ Processing...';
+});
+</script>
+{% endblock %}
